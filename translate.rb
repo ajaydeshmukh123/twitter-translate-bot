@@ -5,7 +5,7 @@ require 'yaml'
 require 'twitter'
 require 'nestful'
 
-GOOGLE_TRANSLATE_URL    = 'https://www.googleapis.com/language/translate/v2'
+GOOGLE_TRANSLATE_URL = 'https://www.googleapis.com/language/translate/v2'
 
 credentials = YAML.load_file('credentials.yml')
 
@@ -32,8 +32,8 @@ params = {
   q: tweet_in_korean.text
 }
 
-response = Nestful.get GOOGLE_TRANSLATE_URL, params: params
-json = JSON.parse(response)
+response   = Nestful.get GOOGLE_TRANSLATE_URL, params: params
+json       = JSON.parse(response)
 translated = json['data']['translations'].first['translatedText']
 
 begin
