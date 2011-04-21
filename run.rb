@@ -2,10 +2,7 @@
 $VERBOSE = nil # silence annoying warnings for posting UTF-8 chars in params
 require 'rubygems'
 require 'yaml'
-require 'twitter'
-require 'nestful'
-
-GOOGLE_TRANSLATE_URL = 'https://www.googleapis.com/language/translate/v2'
+require_relative 'lib/translator'
 
 credentials = YAML.load_file('credentials.yml')
 
@@ -22,25 +19,7 @@ Twitter.configure do |config|
   config.oauth_token_secret = TWITTER_OAUTH_TOKEN_SECRET
 end
 
-tweet_in_korean = Twitter.user_timeline("mingkki21").first
-tweet_id = tweet_in_korean.id
-
-params = {
-  key: GOOGLE_API_KEY,
-  source: 'ko',
-  target: 'en',
-  q: tweet_in_korean.text
-}
-
-response   = Nestful.get GOOGLE_TRANSLATE_URL, params: params
-json       = JSON.parse(response)
-translated = json['data']['translations'].first['translatedText']
-
-begin
-  Twitter.update(translated, in_reply_to_status_id: tweet_id.to_i)
-rescue Exception => e
-  puts e.message
-end
-
-puts "#{tweet_in_korean.text} -> #{translated}"
-
+translator = Translator.new(google_api_key: GOOGLE_API_KEY, history_file: "minzy.txt")
+translator.fetch
+translator.translate!
+translator.post_new_tweets

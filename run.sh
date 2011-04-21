@@ -5,4 +5,5 @@ source "$HOME/.rvm/scripts/rvm"
 rvm use 1.9.2@translator
 
 cd ~/workspace/translator
-ruby translate.rb >> log.txt
+touch minzy.txt
+ruby run.rb >> log.txt
