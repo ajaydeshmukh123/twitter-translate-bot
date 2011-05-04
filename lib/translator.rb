@@ -37,8 +37,7 @@ class Translator
   def post_new_tweets
     translated_tweets.reverse.each do |t|
       begin
-        #Twitter.update(t.text)
-        puts t.text
+        Twitter.update(t.text)
         write_history(t)
       rescue
         puts "Error writing tweet with ID #{t.status_id}"
