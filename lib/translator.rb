@@ -57,6 +57,7 @@ class Translator
       response = Nestful.get self.GOOGLE_TRANSLATE_URL, params: params
       json  = JSON.parse(response)
       translated = json['data']['translations'].first['translatedText']
+      translated.gsub!(/@ /, '@')
       translated_tweets << Tweet.new(t.id, translated)
     end
   end

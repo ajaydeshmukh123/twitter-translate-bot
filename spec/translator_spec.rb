@@ -11,13 +11,12 @@ describe Translator do
 
   it { should be }
 
-  let(:translated) { double(:translated, text: "tres", status_id: 3) }
   let(:translated_response) {
     '{
         "data": {
             "translations": [
                 {
-                    "translatedText": "tres"
+                    "translatedText": "foo @ heya bar"
                 }
             ]
         }
@@ -61,6 +60,7 @@ describe Translator do
   end
 
   describe "posting new tweets" do
+    let(:translated) { double(:translated, text: "eeeeeee") }
     before { translator.translated_tweets = [translated] }
     before { Twitter.should_receive(:update).with(translated.text) }
     let(:new_tweets) { translator.new_tweets }
@@ -77,11 +77,11 @@ describe Translator do
     let(:params) { {key: translator.GOOGLE_API_KEY, source: 'ko', target: 'en', q: fetched_new_tweet.text } }
     before { translator.fetch }
     before { Nestful.should_receive(:get).with(translator.GOOGLE_TRANSLATE_URL, params: params).and_return(translated_response) }
-    it do
+    it "translates tweets and combines @ signs with the word to the right" do
       translator.translate!
       tweet = translator.translated_tweets.first
-      tweet.text.should == translated.text
-      tweet.status_id.should == translated.status_id
+      tweet.text.should == "foo @heya bar"
+      tweet.status_id.should == fetched_new_tweet.id
     end
   end
 end
