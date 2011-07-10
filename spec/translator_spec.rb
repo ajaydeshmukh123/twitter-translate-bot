@@ -1,3 +1,4 @@
+# coding: utf-8
 require 'translator'
 
 describe Translator do
@@ -12,15 +13,19 @@ describe Translator do
   it { should be }
 
   let(:translated_response) {
-    '{
+    <<-RESPONSE
+    {
         "data": {
             "translations": [
                 {
-                    "translatedText": "foo @ heya bar"
+                    "translatedText": "foo @ heya can&#39;t bar kdsjfl kjdfs lksjdflasjfd lkasdjf \
+                    lkaweflweulawfuiawefkuawelfu wlkeufg lwekufy lauewgfl aukgfelk uawhflkuwe flkuewhfl \
+                    kweuhfl kuwehfkl uweahfl kuwehflk uaflawe"
                 }
             ]
         }
-    }'
+    }
+    RESPONSE
   }
 
   let(:fetched_new_tweet) { double(:fetched_new_tweet, id: 3, text: "three") }
@@ -77,11 +82,21 @@ describe Translator do
     let(:params) { {key: translator.GOOGLE_API_KEY, source: 'ko', target: 'en', q: fetched_new_tweet.text } }
     before { translator.fetch }
     before { Nestful.should_receive(:get).with(translator.GOOGLE_TRANSLATE_URL, params: params).and_return(translated_response) }
+    before { translator.translate! }
+    let(:tweet) { translator.translated_tweets.first }
+
     it "translates tweets and combines @ signs with the word to the right" do
-      translator.translate!
-      tweet = translator.translated_tweets.first
-      tweet.text.should == "foo @heya bar"
+      tweet.text.should include("@heya")
       tweet.status_id.should == fetched_new_tweet.id
+    end
+
+    it "it properly converts HTML entities" do
+      tweet.text.should include("can't")
+    end
+
+    it "truncates tweets that go over 140 characters" do
+      tweet.text.length.should == 140
+      tweet.text[-1].should == "…"
     end
   end
 end

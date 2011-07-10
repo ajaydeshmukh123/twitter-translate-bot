@@ -1,5 +1,7 @@
+# coding: utf-8
 require 'twitter'
 require 'nestful'
+require 'htmlentities'
 
 class Tweet
   attr_accessor :text, :status_id
@@ -46,6 +48,7 @@ class Translator
   end
 
   def translate!
+    decoder = HTMLEntities.new
     new_tweets.each do |t|
       params = {
         key: @GOOGLE_API_KEY,
@@ -57,6 +60,8 @@ class Translator
       json  = JSON.parse(response)
       translated = json['data']['translations'].first['translatedText']
       translated.gsub!(/@ /, '@')
+      translated = decoder.decode(translated)
+      translated = translated[0...139] + "…"
       translated_tweets << Tweet.new(t.id, translated)
     end
   end
